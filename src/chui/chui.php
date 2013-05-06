@@ -92,7 +92,9 @@
 						
 						foreach($array as $key => $value)
 						{							
-							echo "<tablecell ui-implements='detail-disclosure' href='#blog-detail' class='blog-post-menu' data-blog-path='".$value->Slug."'>
+							$slugPath = str_replace(site_url(), '', $value->Slug);
+							
+							echo "<tablecell ui-implements='detail-disclosure' href='#blog-detail' class='blog-post-menu' data-blog-path='".$slugPath."'>
 									<celltitle class='productTitle'>".$value->Title."</celltitle>
 									<cellsubtitle>".$value->Excerpt."</cellsubtitle>
 								</tablecell>";

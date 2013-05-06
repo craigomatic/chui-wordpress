@@ -152,7 +152,7 @@
 		<script  type='text/javascript'>
 			$(document).ready(function() {
 				$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
-					var path = item.attr('data-blog-path') + 'json';
+					var path = location.href + item.attr('data-blog-path') + 'json';
 					var content = $('#blog-detail-subview');
 					
 					$('#blog-detail h1').empty();
@@ -178,9 +178,7 @@
 						  }
 					   }
 					});
-				});	
-
-				
+				});
 			});		
 		</script>
     </app>
