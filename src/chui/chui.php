@@ -1,7 +1,6 @@
 <?php
     /*
         Plugin Name: ChUI
-        Plugin URI: http://chocolatechip.azurewebsites.net/
         Description: This plugin returns native looking themes depending on the mobile device that accesses your website.
         Version: 1.0
         Author: Craig Presti
@@ -9,7 +8,8 @@
         License: GPL2
      */
 	require_once("chui.devicetypes.class.php");
-    require_once("chui.blogpost.class.php");		
+    require_once("chui.blogpost.class.php");
+	require_once("chui.viewmodel.class.php");
 	
     function evaluate_device() {    
         $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -65,7 +65,7 @@
             </tablecell>";
 	}
 							
-	function chui_write_views($page, $key, $array) {
+	function chui_write_views($page, $key, $view_model) {
         $pageId = str_replace(" ", "", $page->post_title);
 					
 		//TODO: process the children
@@ -73,8 +73,17 @@
 		//echo '<pre>Children: ' . print_r( $children, true ) . '</pre>';
 		$page_for_posts = intval(get_option( 'page_for_posts' ));
 		
+		$nav_status = 'upcoming';
+		
+		echo "Requested page: ".$view_model->RequestedPage." Current page: ".$page->ID;
+		
+		if($page->ID == $view_model->RequestedPage)
+		{
+			$nav_status = 'current';
+		}
+		
 		if($page->ID == $page_for_posts) {
-			echo "<view id='".$pageId."' ui-navigation-status='upcoming' ui-background-style='vertical-striped'>
+			echo "<view id='".$pageId."' ui-navigation-status='".$nav_status."' ui-background-style='vertical-striped'>
 				<navbar>
 					<uibutton ui-implements='back' ui-bar-align='left'>
 						<label>Back</label>
@@ -90,7 +99,7 @@
 						echo "<scrollpanel>
 								<tableview ui-tablecell-order='stacked'>";
 						
-						foreach($array as $key => $value)
+						foreach($view_model->BlogPosts as $key => $value)
 						{							
 							$slugPath = str_replace(site_url(), '', $value->Slug);
 							
@@ -107,7 +116,7 @@
 			</view>";
 		}
 		else {
-			echo "<view id='".$pageId."' ui-navigation-status='upcoming' ui-background-style='vertical-striped'>
+			echo "<view id='".$pageId."' ui-navigation-status='".$nav_status."' ui-background-style='vertical-striped'>
 				<navbar>
 					<uibutton ui-implements='back' ui-bar-align='left'>
 						<label>Back</label>
@@ -124,17 +133,14 @@
 			</view>";
 		}
 	}
-   
-	 /*function chui_rest_endpoint_rewrite( $wp_rewrite ) {
-		$chui_rest_rules = array(
-			'chui-rest' => plugins_url( 'chui.rest.php' , __FILE__ )
+	
+	function chui_enqueue_scripts() {
+		wp_enqueue_script(
+			'director',
+			plugins_url('templates/js/director.min.js', __FILE__ )
 		);
-
-		$wp_rewrite->rules = $chui_rest_rules + $wp_rewrite->rules;
-		
-		echo "echo: ".plugins_url( 'chui.rest.php' , __FILE__ );
-	}*/
-
+	}
+	
     if($device != DeviceType::Other) {
         
         //remove the actions cluttering up the head
@@ -153,6 +159,7 @@
         add_action('template_redirect', 'chui_redirect_template');
         add_action('get_header', 'chui_get_header');
         add_filter('template_include', 'chui_load_template');
+		add_action( 'wp_enqueue_scripts', 'chui_enqueue_scripts' );
     }      
 
 	//add JSON formatter for the blog posts
@@ -194,5 +201,5 @@
 			// flush rules on deactivate as well so they're not left hanging around uselessly
 			flush_rewrite_rules();
 	}
-	register_deactivation_hook( __FILE__, 'chui_endpoints_deactivate' );    
+	register_deactivation_hook( __FILE__, 'chui_endpoints_deactivate' );    	
 ?>

@@ -37,8 +37,8 @@
                 
                 break;
             }
-        }
-	?>	
+        }	
+	?>		
 	
 	<style>
 		[ui-kind='grouped'] p {
@@ -80,11 +80,19 @@
 			    <scrollpanel>
                     <tableview>                    
                         <?php
-							global $blog_post_array;
 							
-							$blog_post_array = array();
+							$view_model = new ViewModel();							
+
+							if ($post->post_parent != 0) {
+								$view_model->RequestedPage = $post->post_parent;
+							}
+							else {
+								$view_model->RequestedPage = $post->ID;
+							}
 							
-							$query = new WP_Query( 'post_type=post' );			
+							echo "The requested page is: " . $view_model->RequestedPage;
+													
+							$query = new WP_Query( 'post_type=post' );
 										
 							//grab the posts
 							while ( $query->have_posts() ) :
@@ -100,8 +108,7 @@
 									$blog_post->Excerpt = get_the_excerpt();
 								}
 								
-								array_push($blog_post_array, $blog_post);
-								
+								array_push($view_model->BlogPosts, $blog_post);
 							endwhile;
 							
                             $args = array(
@@ -124,7 +131,7 @@
                             
                             $pages = get_pages($args); 
                             
-							array_walk($pages, "chui_write_menu_items");							
+							array_walk($pages, "chui_write_menu_items");
                         ?>                        
                     </tableview>
 			    </scrollpanel>
@@ -146,44 +153,45 @@
 		</view>
 		
 		<?php		
-			array_walk($pages, "chui_write_views", $blog_post_array);
-		?>
-		
-		<script  type='text/javascript'>
-			$(document).ready(function() {
-				$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
-					var path = location.href + item.attr('data-blog-path') + 'json';
-					var content = $('#blog-detail-subview');
-					
-					$('#blog-detail h1').empty();
-					$('#blog-detail-contents').empty();
-					
-					$('#blog-detail-contents').UIActivityIndicator({modal:true, modalMessage:'Loading...'});
-					
-					$.xhr({
-					   url : path,
-					   async: true,
-					   success : function(data) {
-						  var blogPost = JSON.parse(data);
-						  
-						  $('#blog-detail h1').html(blogPost.post_title);
-						  $('#blog-detail-contents').html(blogPost.post_content);
-					   },
-					   error: function(data) {
-						  $('#blog-detail h1').html("Error");
-						  $('#blog-detail-contents').html("Unable to retrieve blog post at this time");
-						  
-						  if (data.status === -1100) {
-							 $('#blog-detail-contents').html("Blog post not found");
-						  }
-					   }
-					});
-				});
-			});		
-		</script>
+			array_walk($pages, "chui_write_views", $view_model);
+		?>		
     </app>
 	<?php
 		wp_footer();
 	?>
+	
+	<script  type='text/javascript'>
+		$(function() {
+			$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
+				var path = location.href + item.attr('data-blog-path') + 'json';
+				var content = $('#blog-detail-subview');
+				
+				$('#blog-detail h1').empty();
+				$('#blog-detail-contents').empty();
+				
+				$('#blog-detail-contents').UIActivityIndicator({modal:true, modalMessage:'Loading...'});
+				
+				$.xhr({
+				   url : path,
+				   async: true,
+				   success : function(data) {
+					  var blogPost = JSON.parse(data);
+					  
+					  $('#blog-detail h1').html(blogPost.post_title);
+					  $('#blog-detail-contents').html(blogPost.post_content);
+				   },
+				   error: function(data) {
+					  $('#blog-detail h1').html("Error");
+					  $('#blog-detail-contents').html("Unable to retrieve blog post at this time");
+					  
+					  if (data.status === -1100) {
+						 $('#blog-detail-contents').html("Blog post not found");
+					  }
+				   }
+				});
+				
+			});		
+		});				
+	</script>
 </body>
 </html>
