@@ -10,6 +10,7 @@
 	require_once("chui.devicetypes.class.php");
     require_once("chui.blogpost.class.php");
 	require_once("chui.viewmodel.class.php");
+	require_once("chui.menuorder.class.php");
 	
     function evaluate_device() {    
         $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -57,12 +58,14 @@
             
     }
     
-   function chui_write_menu_items($page) {
+   function chui_write_menu_items($page, $key, $view_model) {
         $pageId = str_replace(" ", "", $page->post_title);
-								
-        echo "<tablecell href='#".$pageId."'>
-				<celltitle>".$page->post_title."</celltitle>
-            </tablecell>";
+		
+		if($page->ID != $view_model->FrontPageId) {
+			echo "<tablecell href='#".$pageId."'>
+					<celltitle>".$page->post_title."</celltitle>
+				</tablecell>";
+		}
 	}
 							
 	function chui_write_views($page, $key, $view_model) {
@@ -75,13 +78,11 @@
 		
 		$nav_status = 'upcoming';
 		
-		echo "Requested page: ".$view_model->RequestedPage." Current page: ".$page->ID;
-		
 		if($page->ID == $view_model->RequestedPage)
 		{
 			$nav_status = 'current';
 		}
-		
+				
 		if($page->ID == $page_for_posts) {
 			echo "<view id='".$pageId."' ui-navigation-status='".$nav_status."' ui-background-style='vertical-striped'>
 				<navbar>

@@ -38,6 +38,65 @@
                 break;
             }
         }	
+		
+		$view_model = new ViewModel();
+		$view_model->IsFrontPage = is_front_page();
+		$view_model->FrontPageId = $post->ID;
+		
+		$front_page_content = apply_filters('the_content', $post->post_content);
+		
+		if(! $view_model->IsFrontPage) {
+			$main_view_navigation_status = "traversed";
+			
+			if ($post->post_parent != 0) {
+				$view_model->RequestedPage = $post->post_parent;
+			}
+			else {
+				$view_model->RequestedPage = $post->ID;
+			}
+		}
+		else {
+			$main_view_navigation_status = "current";
+		}
+		
+		$query = new WP_Query( 'post_type=post' );
+										
+		//grab the posts
+		while ( $query->have_posts() ) :
+			$query->the_post();
+			
+			$blog_post = new BlogPost();
+			$blog_post->Title = get_the_title();
+			$blog_post->Id = get_the_ID();
+			$blog_post->Slug = get_permalink($blog_post->Id);
+			//$blog_post->Content = get_the_content();
+											
+			if(has_excerpt($blog_post->Id)) {
+				$blog_post->Excerpt = get_the_excerpt();
+			}
+			
+			array_push($view_model->BlogPosts, $blog_post);
+		endwhile;
+		
+		$args = array(
+			'sort_order' => 'ASC',
+			'sort_column' => 'post_title',
+			'hierarchical' => 1,
+			'exclude' => '',
+			'include' => '',
+			'meta_key' => '',
+			'meta_value' => '',
+			'authors' => '',
+			'child_of' => 0,
+			'parent' => -1,
+			'exclude_tree' => '',
+			'number' => '',
+			'offset' => 0,
+			'post_type' => 'page',
+			'post_status' => 'publish'
+		); 
+		
+		$view_model->Pages = get_pages($args);
 	?>		
 	
 	<style>
@@ -72,68 +131,13 @@
 </head>
 <body>	
     <app ui-background-style="striped">
-	    <view id="main" ui-navigation-status="current">
+	    <view id="main" ui-navigation-status="<?php echo $main_view_navigation_status; ?>">
 		    <navbar>
 			    <h1><?php wp_title( '|', true, 'right' );?></h1>
 		    </navbar>
 		    <subview ui-associations="withNavBar">
-			    <scrollpanel>
-                    <tableview>                    
-                        <?php
-							
-							$view_model = new ViewModel();							
-
-							if ($post->post_parent != 0) {
-								$view_model->RequestedPage = $post->post_parent;
-							}
-							else {
-								$view_model->RequestedPage = $post->ID;
-							}
-							
-							echo "The requested page is: " . $view_model->RequestedPage;
-													
-							$query = new WP_Query( 'post_type=post' );
-										
-							//grab the posts
-							while ( $query->have_posts() ) :
-								$query->the_post();
-								
-								$blog_post = new BlogPost();
-								$blog_post->Title = get_the_title();
-								$blog_post->Id = get_the_ID();
-								$blog_post->Slug = get_permalink($blog_post->Id);
-								//$blog_post->Content = get_the_content();
-																
-								if(has_excerpt($blog_post->Id)) {
-									$blog_post->Excerpt = get_the_excerpt();
-								}
-								
-								array_push($view_model->BlogPosts, $blog_post);
-							endwhile;
-							
-                            $args = array(
-	                            'sort_order' => 'ASC',
-	                            'sort_column' => 'post_title',
-	                            'hierarchical' => 1,
-	                            'exclude' => '',
-	                            'include' => '',
-	                            'meta_key' => '',
-	                            'meta_value' => '',
-	                            'authors' => '',
-	                            'child_of' => 0,
-	                            'parent' => -1,
-	                            'exclude_tree' => '',
-	                            'number' => '',
-	                            'offset' => 0,
-	                            'post_type' => 'page',
-	                            'post_status' => 'publish'
-                            ); 
-                            
-                            $pages = get_pages($args); 
-                            
-							array_walk($pages, "chui_write_menu_items");
-                        ?>                        
-                    </tableview>
+			    <scrollpanel>                    
+					<?php $view_model->render_menu( $front_page_content ); ?>
 			    </scrollpanel>
 		    </subview>				
 	    </view>
@@ -153,8 +157,8 @@
 		</view>
 		
 		<?php		
-			array_walk($pages, "chui_write_views", $view_model);
-		?>		
+			array_walk($view_model->Pages, "chui_write_views", $view_model);
+		?>
     </app>
 	<?php
 		wp_footer();
@@ -190,7 +194,7 @@
 				   }
 				});
 				
-			});		
+			});				
 		});				
 	</script>
 </body>
