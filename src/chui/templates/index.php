@@ -192,9 +192,44 @@
 						 $('#blog-detail-contents').html("Blog post not found");
 					  }
 				   }
-				});
+				});				
+			});
+			
+			<?php							
+				array_walk($view_model->Pages, "chui_write_route_functions", $view_model);				
 				
-			});				
+				function chui_write_route_functions($value, $key, $view_model) {
+					$pageId = str_replace(" ", "", $value->post_title);
+					$viewId = $pageId;
+					
+					if($value->ID == $view_model->FrontPageId) {
+						$viewId = "main";
+					}
+					
+					echo "var navigate".$pageId." = function () { 				
+							console.log('".$pageId." routed to');
+							$.UINavigateToView('#".$viewId."');
+						};\r\n";
+				}
+				
+			?>
+			
+			var routes = {
+			
+			<?php			
+				array_walk($view_model->Pages, "chui_write_routes");
+			
+				function chui_write_routes($value) {
+					$pageId = str_replace(" ", "", $value->post_title);					
+					
+					echo "'/".$pageId."' : navigate".$pageId . ",\r\n";					
+				}
+			?>
+
+			};
+
+			var router = Router(routes);
+			router.init();
 		});				
 	</script>
 </body>
