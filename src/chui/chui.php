@@ -78,7 +78,7 @@
 		
 		$nav_status = 'upcoming';
 		
-		if($page->ID == $view_model->RequestedPage)
+		if(strtolower($page->ID) == strtolower($view_model->RequestedPage))
 		{
 			$nav_status = 'current';
 		}
