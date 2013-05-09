@@ -91,14 +91,12 @@
 					</uibutton>
 					<h1>".$page->post_title."</h1>					
 				</navbar>
-				<subview ui-associations='withNavBar'>
-					<div ui-kind='grouped'>
-						";
+				<subview ui-associations='withNavBar'>";
 						
 						apply_filters('the_content', $page->post_content);
 						
 						echo "<scrollpanel>
-								<tableview ui-tablecell-order='stacked'>";
+								<tableview ui-tablecell-order='stacked' ui-kind='grouped'>";
 						
 						foreach($view_model->BlogPosts as $key => $value)
 						{							
@@ -112,8 +110,7 @@
 						
 						echo "</tableview>
 							</scrollpanel>";
-			echo "</div>
-				</subview>
+			echo "</subview>
 			</view>";
 		}
 		else {
