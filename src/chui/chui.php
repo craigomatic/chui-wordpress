@@ -78,8 +78,7 @@
 		
 		$nav_status = 'upcoming';
 		
-		if(strtolower($page->ID) == strtolower($view_model->RequestedPage))
-		{
+		if(strtolower($page->ID) == strtolower($view_model->RequestedPage))	{
 			$nav_status = 'current';
 		}
 				
@@ -93,23 +92,23 @@
 				</navbar>
 				<subview ui-associations='withNavBar'>";
 						
-						apply_filters('the_content', $page->post_content);
+					apply_filters('the_content', $page->post_content);
+					
+					echo "<scrollpanel>
+							<tableview ui-tablecell-order='stacked' ui-kind='grouped'>";
+					
+					foreach($view_model->BlogPosts as $key => $value)
+					{							
+						$slugPath = str_replace(site_url(), '', $value->Slug);
 						
-						echo "<scrollpanel>
-								<tableview ui-tablecell-order='stacked' ui-kind='grouped'>";
-						
-						foreach($view_model->BlogPosts as $key => $value)
-						{							
-							$slugPath = str_replace(site_url(), '', $value->Slug);
-							
-							echo "<tablecell ui-implements='detail-disclosure' href='#blog-detail' class='blog-post-menu' data-blog-path='".$slugPath."'>
-									<celltitle class='productTitle'>".$value->Title."</celltitle>
-									<cellsubtitle>".$value->Excerpt."</cellsubtitle>
-								</tablecell>";
-						}						
-						
-						echo "</tableview>
-							</scrollpanel>";
+						echo "<tablecell ui-implements='detail-disclosure' href='#blog-detail' class='blog-post-menu' data-blog-path='".$slugPath."'>
+								<celltitle class='productTitle'>".$value->Title."</celltitle>
+								<cellsubtitle>".$value->Excerpt."</cellsubtitle>
+							</tablecell>";
+					}						
+					
+					echo "</tableview>
+						</scrollpanel>";
 			echo "</subview>
 			</view>";
 		}
