@@ -128,6 +128,23 @@
 			height: auto;
 		}
 	</style>
+	
+	<script type="text/javascript">
+		$(function() {
+			$.app.on($.eventStart, 'tablecell', function(cell) {
+				 var href;
+				 
+				 if (cell.hasAttr("href")) {
+					href = cell.attr("href");
+					window.location = window.location.pathname + "#/" + href.split('#')[1];
+				 }
+			});
+				
+			$.app.on($.eventStart, 'navbar > uibutton[ui-implements=back]', function() {
+				 window.location = window.location.pathname +  "#/" + $.UINavigationHistory[$.UINavigationHistory.length - 1].split('#')[1]; 
+			});
+		});
+	</script>
 </head>
 <body>	
     <app ui-background-style="striped">
@@ -167,7 +184,8 @@
 	<script  type='text/javascript'>
 		$(function() {
 			$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
-				var path = location.href + item.attr('data-blog-path') + 'json';
+				var href = location.href.split('#')[0];
+				var path = href + item.attr('data-blog-path') + 'json';
 				var content = $('#blog-detail-subview');
 				
 				$('#blog-detail h1').empty();
@@ -193,7 +211,7 @@
 					  }
 				   }
 				});				
-			});
+			});			
 			
 			<?php							
 				array_walk($view_model->Pages, "chui_write_route_functions", $view_model);				
@@ -227,7 +245,7 @@
 			?>
 
 			};
-
+			
 			var router = Router(routes);
 			router.init();
 		});				
