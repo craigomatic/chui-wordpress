@@ -41,7 +41,7 @@
 		
 		$view_model = new ViewModel();
 		$view_model->IsFrontPage = is_front_page();
-		$view_model->FrontPageId = $post->ID;
+		$view_model->FrontPageId = get_option( 'page_on_front');
 		
 		$front_page_content = apply_filters('the_content', $post->post_content);
 		
@@ -52,8 +52,10 @@
 				$view_model->RequestedPage = $post->post_parent;
 			}
 			else {
-				$view_model->RequestedPage = $post->ID;
+				$view_model->RequestedPage = $post->ID;				
 			}
+			
+			$view_model->RequestedPageTitle = $post->post_title;
 		}
 		else {
 			$main_view_navigation_status = "current";
@@ -182,7 +184,33 @@
 	?>
 	
 	<script  type='text/javascript'>
-		$(function() {
+		$(function() {			
+			function getPreviousViewFromHref (locationPath) {
+				var href = '#' + locationPath;
+				var cell = $('tablecell[href="' + href + '"]');
+				var view = cell.closest('view');
+				return '#' + view.attr('id');
+			}
+			  
+			function setPreviousViewNavigationState (previousView, currentView) {
+				$.UINavigationHistory.push(previousView);
+				$.UINavigationHistory.push(currentView);
+				$(previousView).css('visibility','hidden');
+				$(previousView).attr('aria-hidden','true');
+				$(previousView).attr('ui-navigation-status','traversed');
+			}
+			
+			<?php 
+				if ( $view_model->RequestedPageTitle != '' ) {
+					$pageId = str_replace(" ", "", $view_model->RequestedPageTitle);
+					
+					echo "var locationPath = '".$pageId."';\r\n";
+					echo "var previousView = getPreviousViewFromHref(locationPath);\r\n";
+					echo "setPreviousViewNavigationState(previousView, locationPath);\r\n";				
+				}
+			?>
+			
+		
 			$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
 				var href = location.href.split('#')[0];
 				var path = href + item.attr('data-blog-path') + 'json';
