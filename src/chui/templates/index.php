@@ -39,7 +39,10 @@
             }
         }	
 		
+		echo get_option('chui_display_options')['menu_order'];
+			
 		$view_model = new ViewModel();
+		$view_model->MenuOrder = get_option('chui_display_options')['menu_order'];
 		$view_model->IsFrontPage = is_front_page();
 		$view_model->FrontPageId = get_option( 'page_on_front');
 		
@@ -130,23 +133,6 @@
 			height: auto;
 		}
 	</style>
-	
-	<script type="text/javascript">
-		$(function() {
-			$.app.on($.eventStart, 'tablecell', function(cell) {
-				 var href;
-				 
-				 if (cell.hasAttr("href")) {
-					href = cell.attr("href");
-					window.location = window.location.pathname + "#/" + href.split('#')[1];
-				 }
-			});
-				
-			$.app.on($.eventStart, 'navbar > uibutton[ui-implements=back]', function() {
-				 window.location = window.location.pathname +  "#/" + $.UINavigationHistory[$.UINavigationHistory.length - 1].split('#')[1]; 
-			});
-		});
-	</script>
 </head>
 <body>	
     <app ui-background-style="striped">
@@ -169,9 +155,11 @@
 				<h1>Detail View</h1>					
 			</navbar>
 			<subview id='blog-detail-subview' ui-associations='withNavBar'>
-				<div id='blog-detail-contents' ui-kind='grouped' style="min-height: 60px;">
-					
-				</div>
+				<scrollpanel>
+					<div id='blog-detail-contents' ui-kind='grouped' style="min-height: 60px;">
+						
+					</div>
+				</scrollpanel>
 			</subview>
 		</view>
 		
@@ -184,59 +172,52 @@
 	?>
 	
 	<script  type='text/javascript'>
-		$(function() {			
-			function getPreviousViewFromHref (locationPath) {
-				var href = '#' + locationPath;
-				var cell = $('tablecell[href="' + href + '"]');
-				var view = cell.closest('view');
-				return '#' + view.attr('id');
-			}
-			  
-			function setPreviousViewNavigationState (previousView, currentView) {
-				$.UINavigationHistory.push(previousView);
-				$.UINavigationHistory.push(currentView);
-				$(previousView).css('visibility','hidden');
-				$(previousView).attr('aria-hidden','true');
-				$(previousView).attr('ui-navigation-status','traversed');
-			}
+				
+			$(function() {
+				var s = setInterval(function() {
+					if($.UINavigationHistory) {
+												
+						clearInterval(s);
+						
+						var baseUri = '<?php echo parse_url(site_url())['path']; ?>';
+						
+						if (baseUri.length == 0 || baseUri.substr(baseUri.length-1) != '/')
+						{
+							baseUri += '/';
+						}
+						
+						$.UITrackHashNavigation(true, baseUri + '#/');
+					}
+				}, 400);
+			});			
 			
-			<?php 
-				if ( $view_model->RequestedPageTitle != '' ) {
-					$pageId = str_replace(" ", "", $view_model->RequestedPageTitle);
-					
-					echo "var locationPath = '".$pageId."';\r\n";
-					echo "var previousView = getPreviousViewFromHref(locationPath);\r\n";
-					echo "setPreviousViewNavigationState(previousView, locationPath);\r\n";				
-				}
-			?>
-			
-		
 			$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
+				$('#blog-detail').attr('ui-uri', '/Blog' + item.attr('data-blog-path'));
+				
 				var href = location.href.split('#')[0];
-				var path = href + item.attr('data-blog-path') + 'json';
+				var path = href + item.attr('data-blog-path') + 'json';								
 				var content = $('#blog-detail-subview');
 				
 				$('#blog-detail h1').empty();
 				$('#blog-detail-contents').empty();
-				
 				$('#blog-detail-contents').UIActivityIndicator({modal:true, modalMessage:'Loading...'});
 				
 				$.xhr({
 				   url : path,
 				   async: true,
 				   success : function(data) {
-					  var blogPost = JSON.parse(data);
-					  
-					  $('#blog-detail h1').html(blogPost.post_title);
-					  $('#blog-detail-contents').html(blogPost.post_content);
+						var blogPost = JSON.parse(data);						
+					
+						$('#blog-detail h1').html(blogPost.post_title);
+						$('#blog-detail-contents').html(blogPost.post_content);
 				   },
 				   error: function(data) {
-					  $('#blog-detail h1').html("Error");
-					  $('#blog-detail-contents').html("Unable to retrieve blog post at this time");
-					  
-					  if (data.status === -1100) {
+						$('#blog-detail h1').html("Error");
+						$('#blog-detail-contents').html("Unable to retrieve blog post at this time");
+
+						if (data.status === -1100) {
 						 $('#blog-detail-contents').html("Blog post not found");
-					  }
+						}
 				   }
 				});				
 			});			
@@ -276,7 +257,7 @@
 			
 			var router = Router(routes);
 			router.init();
-		});				
+					
 	</script>
 </body>
 </html>
