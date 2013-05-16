@@ -141,8 +141,30 @@
 		);
 	}
 	
-    if($device != DeviceType::Other) {
+	function chui_is_enabled_for_device($device) {
+		switch($device)
+        {
+            case DeviceType::Android:
+            {
+                return get_option('chui_display_options')['enable_android'];
+            }            
+            case DeviceType::iOS:
+            {
+                return get_option('chui_display_options')['enable_ios'];
+            }
+            case DeviceType::WindowsPhone:
+            {
+	            return get_option('chui_display_options')['enable_windowsphone'];
+            }
+        }	
+		
+		return false;
+	}
+	
+    if(chui_is_enabled_for_device($device)) {
         
+		
+		
         //remove the actions cluttering up the head
         remove_action( 'wp_head', 'feed_links_extra', 3 );
         remove_action( 'wp_head', 'feed_links', 2 );
