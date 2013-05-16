@@ -122,11 +122,13 @@
 					<h1>".$page->post_title."</h1>					
 				</navbar>
 				<subview ui-associations='withNavBar'>
-					<div ui-kind='grouped'>
-						"
-					.apply_filters('the_content', $page->post_content).
-						"
-					</div>
+					<scrollpanel>
+						<div ui-kind='grouped'>
+							"
+						.apply_filters('the_content', $page->post_content).
+							"
+						</div>
+					</scrollpanel>
 				</subview>
 			</view>";
 		}
