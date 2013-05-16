@@ -11,6 +11,7 @@
     require_once("chui.blogpost.class.php");
 	require_once("chui.viewmodel.class.php");
 	require_once("chui.menuorder.class.php");
+	require_once("chui.admin.php");
 	
     function evaluate_device() {    
         $userAgent = $_SERVER['HTTP_USER_AGENT'];
