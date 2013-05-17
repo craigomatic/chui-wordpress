@@ -25,7 +25,7 @@
 		if(get_option( 'chui_display_options') == false) {
 			add_option( 'chui_display_options', apply_filters( 'chui_display_options', chui_default_display_options() ) );
 		}
-	   
+			   
 		add_settings_section(  
 			'chui_display_settings_section',         // ID used to identify this section and with which to register options  
 			'Display Options',                  // Title to be displayed on the administration page  
@@ -34,13 +34,13 @@
 		);
 		
 		add_settings_field(   
-			'menu_order',
-			'Menu Order',
-			'chui_menu_order_callback',
-			'chui',
-			'chui_display_settings_section',
+			'menu_order', 													//id
+			'Menu Order', 													//title
+			'chui_menu_order_callback', 									//callback that fills the field out
+			'chui', 														//page
+			'chui_display_settings_section', 								//section
 			array(
-				'Determines the display order of the home page content.'  
+				'Determines the display order of the home page content.'    //args
 			)  
 		);
 		
@@ -75,7 +75,9 @@
 			array(
 				'Activate this setting to render the theme on Windows Phone devices.'  
 			)  
-		);			
+		);	
+
+		register_setting( 'chui_display_options', 'chui_display_options');
 	} 
 	
 	function chui_display_options_callback() {  
@@ -84,7 +86,7 @@
 	
 	function chui_menu_order_callback($args) {
 		
-		$html =  '<select id="menu_order">
+		$html =  '<select id="menu_order" name="chui_display_options[menu_order]">
 				   <option value="0" ' . selected( get_option('chui_display_options')['menu_order'], MenuOrder::ContentThenMenu, false ) . '>Content First</option>
 				   <option value="1" ' . selected( get_option('chui_display_options')['menu_order'], MenuOrder::MenuThenContent, false ) . '>Menu First</option>
 				 </select>';
@@ -97,7 +99,7 @@
 	function chui_toggle_ios_callback($args) {  
 		  
 		// Note the ID and the name attribute of the element match that of the ID in the call to add_settings_field  
-		$html = '<input type="checkbox" id="enable_ios" name="enable_ios" value="1" ' . checked(1, get_option('chui_display_options')['enable_ios'], false) . '/>';   
+		$html = '<input type="checkbox" id="enable_ios" name="chui_display_options[enable_ios]" value="1" ' . checked(1, get_option('chui_display_options')['enable_ios'], false) . '/>';   
 		  
 		// Here, we will take the first argument of the array and add it to a label next to the checkbox  
 		$html .= '<label for="enable_ios"> '  . $args[0] . '</label>';   
@@ -108,7 +110,7 @@
 	function chui_toggle_android_callback($args) {  
 		  
 		// Note the ID and the name attribute of the element match that of the ID in the call to add_settings_field  
-		$html = '<input type="checkbox" id="enable_android" name="enable_android" value="1" ' . checked(1, get_option('chui_display_options')['enable_android'], false) . '/>';   
+		$html = '<input type="checkbox" id="enable_android" name="chui_display_options[enable_android]" value="1" ' . checked(1, get_option('chui_display_options')['enable_android'], false) . '/>';   
 		  
 		// Here, we will take the first argument of the array and add it to a label next to the checkbox  
 		$html .= '<label for="enable_android"> '  . $args[0] . '</label>';   
@@ -119,7 +121,7 @@
 	function chui_toggle_windowsphone_callback($args) {  
 		  
 		// Note the ID and the name attribute of the element match that of the ID in the call to add_settings_field  
-		$html = '<input type="checkbox" id="enable_windowsphone" name="enable_windowsphone" value="1" ' . checked(1, get_option('chui_display_options')['enable_windowsphone'], false) . '/>';   
+		$html = '<input type="checkbox" id="enable_windowsphone" name="chui_display_options[enable_windowsphone]" value="1" ' . checked(1, get_option('chui_display_options')['enable_windowsphone'], false) . '/>';   
 		  
 		// Here, we will take the first argument of the array and add it to a label next to the checkbox  
 		$html .= '<label for="enable_windowsphone"> '  . $args[0] . '</label>';   
@@ -136,9 +138,9 @@
 				settings_errors();
 				
 		echo 	"The following settings can be used to customise the end-user experience.
-				<form action='options.php' method='post'>";
+				<form method='post' action='options.php'>";
 					
-				settings_fields('chui');
+				settings_fields('chui_display_options');
 				do_settings_sections('chui');
 				submit_button();
 					
