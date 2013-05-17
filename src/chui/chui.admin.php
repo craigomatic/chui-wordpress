@@ -86,9 +86,11 @@
 	
 	function chui_menu_order_callback($args) {
 		
+		$options = get_option('chui_display_options');
+		
 		$html =  '<select id="menu_order" name="chui_display_options[menu_order]">
-				   <option value="0" ' . selected( get_option('chui_display_options')['menu_order'], MenuOrder::ContentThenMenu, false ) . '>Content First</option>
-				   <option value="1" ' . selected( get_option('chui_display_options')['menu_order'], MenuOrder::MenuThenContent, false ) . '>Menu First</option>
+				   <option value="0" ' . selected( $options['menu_order'], MenuOrder::ContentThenMenu, false ) . '>Content First</option>
+				   <option value="1" ' . selected( $options['menu_order'], MenuOrder::MenuThenContent, false ) . '>Menu First</option>
 				 </select>';
 		  
 		$html .= '<label for="menu_order"> '  . $args[0] . '</label>';
@@ -98,8 +100,10 @@
 	
 	function chui_toggle_ios_callback($args) {  
 		  
+		$options = get_option('chui_display_options');
+		
 		// Note the ID and the name attribute of the element match that of the ID in the call to add_settings_field  
-		$html = '<input type="checkbox" id="enable_ios" name="chui_display_options[enable_ios]" value="1" ' . checked(1, get_option('chui_display_options')['enable_ios'], false) . '/>';   
+		$html = '<input type="checkbox" id="enable_ios" name="chui_display_options[enable_ios]" value="1" ' . checked(1, $options['enable_ios'], false) . '/>';   
 		  
 		// Here, we will take the first argument of the array and add it to a label next to the checkbox  
 		$html .= '<label for="enable_ios"> '  . $args[0] . '</label>';   
@@ -108,9 +112,11 @@
 	}
 	
 	function chui_toggle_android_callback($args) {  
-		  
+		
+		$options = get_option('chui_display_options');
+		
 		// Note the ID and the name attribute of the element match that of the ID in the call to add_settings_field  
-		$html = '<input type="checkbox" id="enable_android" name="chui_display_options[enable_android]" value="1" ' . checked(1, get_option('chui_display_options')['enable_android'], false) . '/>';   
+		$html = '<input type="checkbox" id="enable_android" name="chui_display_options[enable_android]" value="1" ' . checked(1, $options['enable_android'], false) . '/>';   
 		  
 		// Here, we will take the first argument of the array and add it to a label next to the checkbox  
 		$html .= '<label for="enable_android"> '  . $args[0] . '</label>';   
@@ -119,9 +125,11 @@
 	}
 	
 	function chui_toggle_windowsphone_callback($args) {  
-		  
+		
+		$options = get_option('chui_display_options');
+		
 		// Note the ID and the name attribute of the element match that of the ID in the call to add_settings_field  
-		$html = '<input type="checkbox" id="enable_windowsphone" name="chui_display_options[enable_windowsphone]" value="1" ' . checked(1, get_option('chui_display_options')['enable_windowsphone'], false) . '/>';   
+		$html = '<input type="checkbox" id="enable_windowsphone" name="chui_display_options[enable_windowsphone]" value="1" ' . checked(1, $options['enable_windowsphone'], false) . '/>';   
 		  
 		// Here, we will take the first argument of the array and add it to a label next to the checkbox  
 		$html .= '<label for="enable_windowsphone"> '  . $args[0] . '</label>';   

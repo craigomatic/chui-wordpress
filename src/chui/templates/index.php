@@ -38,11 +38,13 @@
                 break;
             }
         }	
+		
+		$options = get_option('chui_display_options');
 			
 		$view_model = new ViewModel();
-		$view_model->MenuOrder = get_option('chui_display_options')['menu_order'];
+		$view_model->MenuOrder = $options['menu_order'];
 		$view_model->IsFrontPage = is_front_page();
-		$view_model->FrontPageId = get_option( 'page_on_front');
+		$view_model->FrontPageId = get_option('page_on_front');
 		
 		$front_page_content = apply_filters('the_content', $post->post_content);
 		

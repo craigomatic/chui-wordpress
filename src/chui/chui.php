@@ -54,12 +54,8 @@
         $template = plugin_dir_path( __FILE__ )."templates/index.php";
         return $template;
     }   
-    
-    function chui_get_header() {
-            
-    }
-    
-   function chui_write_menu_items($page, $key, $view_model) {
+        
+    function chui_write_menu_items($page, $key, $view_model) {
         $pageId = str_replace(" ", "", $page->post_title);
 		
 		if($page->ID != $view_model->FrontPageId) {
@@ -142,19 +138,25 @@
 	}
 	
 	function chui_is_enabled_for_device($device) {
+		$options = get_option('chui_display_options');
+		
+		if($options == false) {
+			return $device != DeviceType::Other;
+		}
+		
 		switch($device)
         {
             case DeviceType::Android:
             {
-                return get_option('chui_display_options')['enable_android'];
+                return $options['enable_android'];
             }            
             case DeviceType::iOS:
             {
-                return get_option('chui_display_options')['enable_ios'];
+                return $options['enable_ios'];
             }
             case DeviceType::WindowsPhone:
             {
-	            return get_option('chui_display_options')['enable_windowsphone'];
+	            return $options['enable_windowsphone'];
             }
         }	
 		
