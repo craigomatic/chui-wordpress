@@ -11,7 +11,7 @@ ChocolateChip-UI
 Chui.wp.css
 Copyright 2013 Sourcebits www.sourcebits.com
 License: BSD
-Version: 2.1.3
+Version: 2.1.4
 */
 @font-face {
     font-family: 'SegoeWP';
@@ -840,8 +840,8 @@ icon {
     width: 23px;
     display: inline-block;
 }
-uibutton[ui-kind=icon] icon[style*='webkit-mask-image'],
-uibutton[ui-kind=icon] icon[style*='webkit-mask-image'],
+uibutton[ui-kind=icon] icon[style*='background-image'],
+uibutton[ui-kind=icon] icon[style*='background-image'],
 icon[ui-implements='icon-mask'] {
   margin: 0;
   background-color: transparent;
