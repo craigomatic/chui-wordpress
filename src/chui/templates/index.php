@@ -38,8 +38,6 @@
                 break;
             }
         }	
-		
-		echo get_option('chui_display_options')['menu_order'];
 			
 		$view_model = new ViewModel();
 		$view_model->MenuOrder = get_option('chui_display_options')['menu_order'];
