@@ -440,7 +440,6 @@ Version: 2.1.3
 				containerChildren.eq(val).css('display','block');
 				that.attr('ui-segmented-container', ('#' + container.attr('id')));
 				var selectedIndex = $(this).attr('ui-selected-index');
-				//container.closest('scrollpanel').data('ui-scroller').refresh();
 				
 			}
 			$._each($(this).childElements(), function(idx, button) {
@@ -489,7 +488,6 @@ Version: 2.1.3
 							containerChildren.eq(oldSelection).css('display','none');
 							containerChildren.eq(uisi).css('display','block');
 							containerChildren.eq(selectedSegment.attr('ui-child-position')).css('display','none');
-							//container.closest('scrollpanel').data('ui-scroller').refresh();
 						}
 					}
 					$(this).addClass('selected');
@@ -530,10 +528,6 @@ Version: 2.1.3
 					}
 					tabbar.push("'");
 				}
-				tabbar.push("><icon style='-webkit-mask-image: url(");
-				tabbar.push(imagePath);
-				tabbar.push(iconsOfTabs[i]);
-				tabbar.push(".svg);'></icon>");
 				tabbar.push("<label>");
 				tabbar.push(tabLabels[i]);
 				tabbar.push("</label></uibutton>");
@@ -697,9 +691,7 @@ Version: 2.1.3
 		},
 		
 		UIParagraphEllipsis : function () {
-			var lines = $(this).UICalculateNumberOfLines();
-			var $this = this.reduceToNode();
-			$this.style.WebkitLineClamp = lines;
+			return this;
 		},
 		
 		UIProgressBar : function ( opts ) {
@@ -747,7 +739,6 @@ Version: 2.1.3
 			actionsheet.attr('aria-hidden','true');
 			var scrollpanel = actionsheet.find('scrollpanel');
 			var scroller =  scrollpanel.reduceToNode();
-			//scrollpanel.data('ui-scroller', new iScroll(scroller));
 			var actionSheetUIButtons = $.concat("#", actionSheetID, " uibutton");
 			$._each($.els(actionSheetUIButtons), function(idx, button) {
 				$(button).on("click", function() {
@@ -807,7 +798,6 @@ Version: 2.1.3
 			var modal = opts.modal || false;
 			var modalMessage = opts.modalMessage ? $.concat('<h5 role="dialog">',opts.modalMessage,'</h5>') : '';
 			var modalPanelID = $.UIUuid();
-			var duration = opts.duration || '1s';
 			var style = $.concat('height:', size, ';  width:',size);
 			var spinner;
 			if (modal) {
@@ -816,9 +806,8 @@ Version: 2.1.3
 				$(panel).attr('aria-visiblity','visible');
 				$(panel).attr('role','dialog');
 				$(panel).attr('id', modalPanelID);
-				$(panel).css({'display':'-webkit-box','-webkit-box-orient':'vertical','-webkit-box-align':'center','-webkit-box-pack':'center', 'background-color':'#282828', 'height': '120px', 'width':'200px', 'z-index': 11111});
-				spinner = document.createElement('activityindicator');
-				$(spinner).css({'height': '50px', 'width': '50px', '-webkit-animation-duration': duration});
+				$(panel).css({'display':'-ms-flexbox','ms-flex-direction': 'column','-ms-flex-align':'center','-ms-flex-pack':'center', 'background-color':'#282828', 'height': '120px', 'width':'200px', 'z-index': 11111});
+				spinner = document.createElement('progress');
 				$(spinner).attr('role','progressbar');
 				$(panel).append(spinner);
 				if (modalMessage) {
@@ -827,7 +816,7 @@ Version: 2.1.3
 				$(this).append(panel);
 				$('view[ui-navigation-status=current]').css('display','none');
 				$(panel).ariaFocusChild('h5');
-				$('view[ui-navigation-status=current]').css('display','-webkit-box');
+				$('view[ui-navigation-status=current]').css('display','-ms-flexbox');
 				$(panel).find('h5').focus();
 				$('#'+modalPanelID).UIBlock('0.5');
 				var mp = $('#'+modalPanelID);
@@ -841,10 +830,8 @@ Version: 2.1.3
 					$('#'+modalPanelID).UICenterElementToParent();
 				}, false);
 			} else {
-				var webkitAnim = _zo ? null : {'-webkit-animation-duration': duration};
-				spinner = document.createElement('activityindicator');
-				$(spinner).css({'height': size, 'width': size});
-				if (webkitAnim) $(spinner).css(webkitAnim);
+				spinner = document.createElement('progress');
+				$(spinner).css({'width': size});
 				$(spinner).attr('role','progressbar');
 				if (position) $(spinner).attr('ui-bar-align', position);
 				return $(this).append(spinner);
@@ -858,7 +845,7 @@ Version: 2.1.3
 				var panel = $(this).find('panel[ui-implements=modal-activity-indicator]');
 				panel.remove();
 			} catch(error) {}
-			var ai = $(this).find('activityindicator');
+			var ai = $(this).find('progress');
 			ai.remove();
 		},
 		
@@ -959,7 +946,6 @@ Version: 2.1.3
 			if (rightLimit > screenWidth) {
 				var leftDiff = (rightLimit) - screenWidth;
 				var newLeft = Math.floor((popoverLeft - leftDiff) / 2);
-				console.log('newLeft: ' + newLeft);
 				if (newLeft < 0) {
 					newLeft = 2;
 				}
@@ -1115,28 +1101,27 @@ Version: 2.1.3
 			
 			UINavigateBack : function() {
 				var histLen = $.UINavigationHistory.length;
-				var parent = $.UINavigationHistory[histLen-1];
-				$.UINavigationHistory.pop();
-				histLen = $.UINavigationHistory.length;
-				$($.UINavigationHistory[histLen-1])
-				.css('visibility', 'visible');
-				$($.UINavigationHistory[histLen-1])
-				.attr('ui-navigation-status', 'current');
-				
-				$($.UINavigationHistory[histLen-1])
-				.attr('aria-hidden', 'false');
-				$(parent).attr('ui-navigation-status', 'upcoming');
-				$(parent).attr('aria-hidden', 'true');
-				$(parent).css('visibility', 'hidden');
+				var currentView = "#" + $('view[ui-navigation-status=current]')
+					.attr('id');
+				$($.UINavigationHistory[histLen -1])
+					.css({'visibility':'visible'})
+					.attr('ui-navigation-status', 'current');
+				$($.UINavigationHistory[histLen-1]).removeAttr('aria-hidden');
+				$(currentView).attr('ui-navigation-status', 'upcoming');
+				$(currentView).attr('aria-hidden', 'true');
+				$(currentView).css('visibility', 'hidden');
 				 if ($.app.attr('ui-kind')==='navigation-with-one-navbar' && $.UINavigationHistory[histLen-1] === '#main') {
  					$('navbar > uibutton[ui-implements=back]', $.app).css({'display':'none'});
+ 				}
+ 				$.UISetHashOnUrl($.UINavigationHistory[$.UINavigationHistory.length-1]);
+ 				if ($.UINavigationHistory[$.UINavigationHistory.length-1] !== '#main') {
+ 					$.UINavigationHistory.pop();
  				}
 			},
 			
 			UINavigateBackToView : function ( viewID ) {
 				var historyIndex = $.UINavigationHistory.indexOf(viewID);
 				$.UINavigationHistory = $.UINavigationHistory.splice(historyIndex);
-				console.log($.UINavigationHistory);
 				var views = $('app').findAll('views');
 				$._each(views, function(idx, ctx) {
 					if ($(ctx).attr('ui-navigation-status' == 'current')) {
@@ -1151,36 +1136,49 @@ Version: 2.1.3
 			UINavigationListExits : false,
 
 		   UINavigationEvent : false,
+						
+			UIOutputHashToUrl : null,
+			
+			UITrackHashNavigation : function ( url, delimeter ) {
+				url = url || true;
+				$.UIOutputHashToUrl = url;
+				$.UISetHashOnUrl($.UINavigationHistory[$.UINavigationHistory.length-1], delimeter);
+			},
 			
 			UINavigationList : function() {
 				var navigateList = function(node) {
-					var currentNavigatingView = '#main';
+					var currentNavigatingView = $(node).closest('view');
+					var currentViewID = '#' + $(currentNavigatingView).attr('id');
 					node = $(node);
 					node.attr('role','link');
 					var href = node.attr('href');
 					if (/^#/.test(href) == false) return;
 					try {
-						if ($.app.attr('ui-kind')==='navigation-with-one-navbar') {
-							$('navbar > uibutton[ui-implements=back]', $.app).css({'display': 'block'});
+						if ($.UIOutputHashToUrl) {
+							if ($(href).hasAttr('ui-uri')) {
+								$.UISetHashOnUrl($(href).attr('ui-uri'), '#');
+							} else {
+								$.UISetHashOnUrl(href);
+							}
 						}
 						$(node.attr('href')).attr('ui-navigation-status', 'current');
-						$(node.attr('href')).attr('aria-hidden', 'false');
+						$(node.attr('href')).removeAttr('aria-hidden');
 						$(node.attr('href')).css('visibility', 'visible');
-						$($.UINavigationHistory[$.UINavigationHistory.length-1]).attr('ui-navigation-status', 'traversed');
-						$($.UINavigationHistory[$.UINavigationHistory.length-1]).attr('aria-hidden', 'true');
-						$($.UINavigationHistory[$.UINavigationHistory.length-1]).css('visibility', 'hidden');
+						$(currentViewID).attr('ui-navigation-status', 'traversed');
+						$(currentViewID).attr('aria-hidden', 'true');
+						$(currentViewID).css('visibility', 'hidden');
 						if ($('#main').attr('ui-navigation-status') !== 'traversed') {
 							$('#main').attr('ui-navigation-status', 'traversed');
 							$('#main').attr('aria-hidden', 'true');
 							$('#main').css('visibility', 'hidden');
 						}
 						
-						$.UINavigationHistory.push(href);
-						currentNavigatingView = node.closest('view');
-						
-						currentNavigatingView.on('transitionend', function (event) {
+						if (currentViewID != '#main') {
+							$.UINavigationHistory.push(currentViewID);
+						}
+						currentNavigatingView.on('MSTransitionEnd', function(event) {
 							if (_jq) {
-							    if (event.type === 'transitionend') {
+								if (event.type === 'MSTransitionEnd') {
 									node.removeClass('disabled');
 								}
 							} else {
@@ -1192,53 +1190,72 @@ Version: 2.1.3
 					} catch(err) {} 
 				};
 				
-					$.app.on('MSPointerDown', 'tablecell', function(ctx) {
-						var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
-						$(node).addClass('touched');
-						setTimeout(function() {
-							$(node).removeClass('touched')
-						}, 250);
-					});
-					$.app.on('MSPointerUp', 'tablecell', function (ctx) {
-						var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
-						$(node).addClass('touched');
-						setTimeout(function () {
-						    $(node).removeClass('touched')
-						}, 4000);
-						if ($(node).hasAttr('href')) {
-							$.UINavigationListExits = true;				
-							if ($(node).hasClass('disabled')) {
-								return;
-							} else {
-								$(node).addClass('disabled');
-								navigateList(node);
-							}
+				$.app.on('MSPointerDown', 'tablecell', function(ctx) {
+					var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
+					$(node).addClass('touched');
+					setTimeout(function() {
+						$(node).removeClass('touched')
+					}, 250);
+				});
+				$.app.on('MSPointerUp', 'tablecell', function (ctx) {
+					var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
+					$(node).addClass('touched');
+					setTimeout(function () {
+						 $(node).removeClass('touched')
+					}, 4000);
+					if ($(node).hasAttr('href')) {
+						$.UINavigationListExits = true;				
+						if ($(node).hasClass('disabled')) {
+							return;
+						} else {
+							$(node).addClass('disabled');
+							navigateList(node);
 						}
-					});
+					}
+				});
 			},
 			
 			UINavigateToView : function(viewID) {
+				var currentView = $('view[ui-navigation-status=current]').attr('id');
+				if (currentView !== 'main') {
+					$.UINavigationHistory.push("#" + currentView);
+				}
 				$.UINavigationListExits = true;
 				var histLen = $.UINavigationHistory.length;
 				$($.UINavigationHistory[histLen-1]).attr('ui-navigation-status','traversed');
 				$($.UINavigationHistory[histLen-1]).attr('aria-hidden', 'true');
 				$($.UINavigationHistory[histLen-1]).css('visibility', 'hidden');
 				$(viewID).attr('ui-navigation-status','current');
-				$(viewID).attr('aria-hidden', 'false');
+				$(viewID).removeAttr('aria-hidden');
 				$(viewID).css('visibility', 'visible');
-				if (viewID != '#main') {
-					$.UINavigationHistory.push(viewID);
-				}
 				if ($.app.attr('ui-kind') === 'navigation-with-one-navbar') {
 					try {
 						$('navbar uibutton[ui-implements=back]').css({'display':'block'});
 						$('navbar uibutton[ui-implements=backTo]').css({'display':'block'});
 					} catch(err) {}
 				}
+				if ($(viewID).hasAttr('ui-uri')) {
+					$.UISetHashOnUrl($(viewID).attr('ui-uri'));
+				} else {
+				   $.UISetHashOnUrl(viewID);
+				}
 			},
 			
 			UINavigateToNextView : function ( viewID ) {
 				return $.UINavigateToView(viewID);
+			},
+			
+			UISetHashOnUrl : function ( url, delimiter ) {
+				delimiter = delimiter || '#/';
+				if ($.UIOutputHashToUrl) {
+					var hash;
+					if (/^#/.test(url)) {
+						hash = delimiter + (url.split('#')[1]);
+					} else {
+						hash = delimiter + url;
+					}
+					window.history.replaceState('Object', 'Title', hash);
+				}
 			},
 		
 			resetApp : function ( hard ) {
@@ -1397,7 +1414,7 @@ Version: 2.1.3
 		});
 	
 		
-		$.app.delegate('view','webkitTransitionEnd', function() {
+		$.app.delegate('view','MSTransitionEnd', function() {
 			if (!$('view[ui-navigation-status=current]')) {
 				$($.UINavigationHistory[$.UINavigationHistory.length-2])	 
 					.attr('ui-navigation-status', 'current');
@@ -1408,41 +1425,27 @@ Version: 2.1.3
 		
 		$.UINavigationList();
 		
-		//if ($.userAction === 'touchend') {
-			$.app.on('MSPointerDown', 'uibutton', function(ctx) {
-				var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
-				$(node).addClass('touched');
-				setTimeout(function() {
-					$(node).removeClass('touched');
-				}, 1000);
-			});
-			$.app.on('MSPointerUp', 'uibutton', function(ctx) {
-				var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
+		$.app.on('MSPointerDown', 'uibutton', function(ctx) {
+			var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
+			$(node).addClass('touched');
+			setTimeout(function() {
 				$(node).removeClass('touched');
-				if ($(node).attr('ui-implements') === 'back') {
-					if ($.UINavigationListExits) {
-						$.UINavigateBack();
-						$.UINavigationEvent = false;
-					}
+			}, 1000);
+		});
+		$.app.on('MSPointerUp', 'uibutton', function(ctx) {
+			var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
+			$(node).removeClass('touched');
+			if ($(node).attr('ui-implements') === 'back') {
+				if ($.UINavigationListExits) {
+					$.UINavigateBack();
+					$.UINavigationEvent = false;
 				}
-			});
-			$.app.on('MSPointerCancel', 'uibutton', function(ctx) {
-				var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
-				$(node).removeClass('touched');
-			});
-		/*} else {
-			$.app.on('MSPointerDown', 'uibutton', function(ctx) {
-				var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
-				if ($(node).attr('ui-implements') === 'back') {
-					if ($.UINavigationListExits) {
-						$.UINavigateBack();
-						$.UINavigationEvent = false;
-					}
-				}
-			});
-		}*/	
-		
-		//$.UIEnableScrolling();
+			}
+		});
+		$.app.on('MSPointerCancel', 'uibutton', function(ctx) {
+			var node = ctx.nodeType === 1 ? $.ctx(ctx) : $.ctx(this);
+			$(node).removeClass('touched');
+		});
 		
 		$.app.UIInitSwitchToggling();
 		
@@ -1645,7 +1648,6 @@ Version: 2.1.3
 							});
 							$(this).addClass('disabled');
 						});
-						//$(this).closest('view').find('scrollpanel').data('ui-scroller').refresh();	
 					});
 				};
 				
@@ -1706,7 +1708,6 @@ Version: 2.1.3
 				var continueUIButton = opts.continueUIButton || 'Continue';
 				var callback = opts.callback || function() {};
 				var popup = $.concat('<popup role="alertdialog" id=', id, ' ui-visible-state="hidden" aria-hidden="true"><panel><h1>', title, '</h1><p role="note">', message, '</p><toolbar ui-placement="bottom"><uibutton role="button" ui-kind="action" ui-implements="cancel"><label>', cancelUIButton, '</label></uibutton><uibutton role="button" ui-kind="action" ui-implements="continue"><label>', continueUIButton, '</label></uibutton></toolbar></panel></popup>');
-				console.log(popup);
 				$('app').append(popup);
 				var popupID = '#' + id;
 				$(popupID).UIBlock('0.5');
@@ -1788,7 +1789,7 @@ Version: 2.1.3
 				    if ($.msPointerEnabled) {
 				        $('view[ui-navigation-status=current]').css('display', 'block');
 				    } else {
-				        $('view[ui-navigation-status=current]').css('display', '-webkit-box');
+				        $('view[ui-navigation-status=current]').css('display', '-ms-flexbox');
 				    }
 				},100);
 				setTimeout(function() {
@@ -1804,7 +1805,6 @@ Version: 2.1.3
 				screenCover.on('touchmove', function(e) {
 					e.preventDefault();
 				});
-				//$(actionSheetID).find('scrollpanel').data('ui-scroller').refresh();
 			},
 			
 			UIHideActionSheet : function() {
@@ -1866,12 +1866,10 @@ Version: 2.1.3
 				}
 				var scroller = $("tableview[ui-kind='titled-list alphabetical']").closest("scrollpanel");
 				var sc = scroller.reduceToNode();
-				//scroller.data('ui-scroller').destroy();
-				//var newScroller = new iScroll(sc, {snap:true});
-				//scroller.data('ui-scroller', newScroller);
 				$.app.on("click","stack[ui-kind='alphabetical-list'] > span",  function(ctx) { 
 					var alpha = $.ctx(ctx) || $(this);
-					//scroller.data('ui-scroller').scrollToElement(alpha.attr("href"));
+					// ** Need to implement scrollTo for Alphabetical List!!! ** //
+					// scroller.data('ui-scroller').scrollToElement(alpha.attr("href"));
 				});
 			},
 			
@@ -1899,10 +1897,6 @@ Version: 2.1.3
 					$.body.addClass("landscape");
 					$.body.removeClass("portrait");
 					$.rootview.css({display: "block", height: "100%", "margin-bottom": "1px"});
-					$._each($.els('rootview scrollpanel'), function(idx, ctx) {
-						//$(ctx).css({overflow: "hidden", height: ($.rootview.innerHeight - 45)+'px'});
-						//$(ctx).data('ui-scroller').refresh();
-					});
 				} else {
 					$.body.addClass("portrait");
 					$.body.removeClass("landscape");
@@ -1924,21 +1918,13 @@ Version: 2.1.3
 					if (window.innerWidth > window.innerHeight) {
 						$.body.addClass("landscape");
 						$.body.removeClass("portrait");
-						$.rootview.css({display: "block", height: "100%", "margin-bottom": "1px"});						
-						$._each($.els('rootview scrollpanel'), function(idx, ctx) {
-							//$(ctx).css({overflow: "hidden", height: "100%"});
-							//$(ctx).data('ui-scroller').refresh();
-						});
+						$.rootview.css({display: "block", height: "100%", "margin-bottom": "1px"});
 						$.app.UIUnblock();
 					} else {
 						$.app.UIUnblock();
 						$.body.addClass("portrait");
 						$.body.removeClass("landscape");
 						$.rootview.css({display: "none", height: (window.innerHeight - 100)+'px'});
-						$._each($.els('rootview scrollpanel'), function(idx, ctx) {
-							//$(ctx).css({overflow: "hidden", height:(window.innerHeight - 155)+'px'});
-							//$(ctx).data('ui-scroller').refresh();
-						});
 					}
 					$.UIEnableScrolling();
 				}
@@ -1951,15 +1937,9 @@ Version: 2.1.3
 				if ($.rootview.css("display") === "none") {
 					$.rootview.css("display", "block");
 					$.app.UIBlock(".01");
-					$._each($.els('rootview scrollpanel'), function(idx, ctx) {
-						//$(ctx).data('ui-scroller').refresh();
-					});
 				} else {
 					$.rootview.css("display","none");
 					$.app.UIUnblock();
-					$._each($.els('rootview scrollpanel'), function(idx, ctx) {
-						//$(ctx).data('ui-scroller').refresh();
-					});
 				}
 			},			
 			UICheckForSplitView : function ( ) {
@@ -2063,15 +2043,6 @@ Version: 2.1.3
 				$.UIPopover.activePopover = null;
 				$(popover).css({"opacity": 0, "transform": "scale(0)"});
 				popover.UIUnblock();
-			},
-			
-			UIEnablePopoverScrollpanels : function ( options ) {
-				try {
-					var count = 0;
-					$._each($.els("popover scrollpanel"), function(idx, item) {
-						//$(item).data('ui-scroller', new iScroll(item.parentNode));
-					});
-				} catch(e) { }			
 			},
 			
 			form2JSON : function(rootNode, delimiter) {
@@ -2214,11 +2185,9 @@ Version: 2.1.3
 					},0);
 					$.UIPopover.activePopover = popover.id || popover[0].id;
 			
-					//$.UIEnableScrolling();
 				} else {
 					return;
 				}
-				//$.UIEnablePopoverScrollpanels();
 			},
 			
 			hide : function ( popover ) {

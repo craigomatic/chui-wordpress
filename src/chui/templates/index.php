@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
+	<meta charset="utf-8" />
 	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<title><?php wp_title( '|', true, 'right' );?></title>
@@ -39,10 +39,7 @@
             }
         }	
 		
-		echo get_option('chui_display_options')['menu_order'];
-			
 		$view_model = new ViewModel();
-		$view_model->MenuOrder = get_option('chui_display_options')['menu_order'];
 		$view_model->IsFrontPage = is_front_page();
 		$view_model->FrontPageId = get_option( 'page_on_front');
 		
@@ -133,6 +130,7 @@
 			height: auto;
 		}
 	</style>
+	
 </head>
 <body>	
     <app ui-background-style="striped">
@@ -147,19 +145,17 @@
 		    </subview>				
 	    </view>
 		
-		<view id="blog-detail" ui-navigation-status="upcoming">
+		<view id="blogdetail" ui-navigation-status="upcoming">
 			<navbar>
 				<uibutton ui-implements='back' ui-bar-align='left'>
 					<label>Back</label>
 				</uibutton>
 				<h1>Detail View</h1>					
 			</navbar>
-			<subview id='blog-detail-subview' ui-associations='withNavBar'>
-				<scrollpanel>
-					<div id='blog-detail-contents' ui-kind='grouped' style="min-height: 60px;">
-						
-					</div>
-				</scrollpanel>
+			<subview id='blogdetail-subview' ui-associations='withNavBar'>
+				<div id='blogdetail-contents' ui-kind='grouped' style="min-height: 60px;">
+					
+				</div>
 			</subview>
 		</view>
 		
@@ -179,44 +175,47 @@
 												
 						clearInterval(s);
 						
-						var baseUri = '<?php echo parse_url(site_url())['path']; ?>';
-						
-						if (baseUri.length == 0 || baseUri.substr(baseUri.length-1) != '/')
-						{
-							baseUri += '/';
-						}
-						
-						$.UITrackHashNavigation(true, baseUri + '#/');
+						$.UITrackHashNavigation(true, '/wordpress/#/');
 					}
 				}, 400);
-			});			
+				
+			});
+			
+			<?php 
+				/*if ( $view_model->RequestedPageTitle != '' ) {
+					$pageId = str_replace(" ", "", $view_model->RequestedPageTitle);
+					
+					echo "var locationPath = '".$pageId."';\r\n";
+					echo "var previousView = getPreviousViewFromHref(locationPath);\r\n";
+					echo "setPreviousViewNavigationState(previousView, '#'+locationPath);\r\n";				
+				}*/
+			?>
 			
 			$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
-				$('#blog-detail').attr('ui-uri', '/Blog' + item.attr('data-blog-path'));
+				$('#blogdetail').attr('ui-uri', item.attr('data-blog-path'));
 				
 				var href = location.href.split('#')[0];
 				var path = href + item.attr('data-blog-path') + 'json';								
-				var content = $('#blog-detail-subview');
-				
-				$('#blog-detail h1').empty();
-				$('#blog-detail-contents').empty();
-				$('#blog-detail-contents').UIActivityIndicator({modal:true, modalMessage:'Loading...'});
+				var content = $('#blogdetail-subview');
+				$('#blogdetail h1').empty();
+				$('#blogdetail-contents').empty();
+				$('#blogdetail-contents').UIActivityIndicator({modal:true, modalMessage:'Loading...'});
 				
 				$.xhr({
 				   url : path,
 				   async: true,
+				   dataType: 'json',
 				   success : function(data) {
-						var blogPost = JSON.parse(data);						
-					
-						$('#blog-detail h1').html(blogPost.post_title);
-						$('#blog-detail-contents').html(blogPost.post_content);
+				   	data = JSON.parse(data);
+						$('#blogdetail h1').html(data.post_title);
+						$('#blogdetail-contents').html(data.post_content);
 				   },
 				   error: function(data) {
-						$('#blog-detail h1').html("Error");
-						$('#blog-detail-contents').html("Unable to retrieve blog post at this time");
+						$('#blogdetail h1').html("Error");
+						$('#blogdetail-contents').html("Unable to retrieve blog post at this time");
 
 						if (data.status === -1100) {
-						 $('#blog-detail-contents').html("Blog post not found");
+						 	$('#blogdetail-contents').html("Blog post not found");
 						}
 				   }
 				});				
@@ -256,7 +255,7 @@
 			};
 			
 			var router = Router(routes);
-			router.init();
+			//router.init();
 					
 	</script>
 </body>
