@@ -133,38 +133,31 @@
 	</style>
 </head>
 <body>	
-    <app ui-background-style="striped">
-	    <view id="main" ui-navigation-status="<?php echo $main_view_navigation_status; ?>">
-		    <navbar>
-			    <h1><?php wp_title( '|', true, 'right' );?></h1>
-		    </navbar>
-		    <subview ui-associations="withNavBar">
-			    <scrollpanel>                    
-					<?php $view_model->render_menu( $front_page_content ); ?>
-			    </scrollpanel>
-		    </subview>				
-	    </view>
+    <nav>
+		<h1><?php wp_title( '|', true, 'right' );?></h1>
+	</nav>
+	<article id="main" class="<?php echo $main_view_navigation_status; ?>">
+		<section>
+			<?php $view_model->render_menu( $front_page_content ); ?>
+		</section>				
+	</article>
 		
-		<view id="blog-detail" ui-navigation-status="upcoming">
-			<navbar>
-				<uibutton ui-implements='back' ui-bar-align='left'>
-					<label>Back</label>
-				</uibutton>
-				<h1>Detail View</h1>					
-			</navbar>
-			<subview id='blog-detail-subview' ui-associations='withNavBar'>
-				<scrollpanel>
-					<div id='blog-detail-contents' ui-kind='grouped' style="min-height: 60px;">
+    <nav id="blog-detail-nav">
+		<a class='button back'>Back</a>
+		<h1>Detail View</h1>					
+	</nav>
+	<article id="blog-detail" class="next">
+		<section id='blog-detail-subview'>
+			<div id='blog-detail-contents' style="min-height: 60px;">
 						
-					</div>
-				</scrollpanel>
-			</subview>
-		</view>
+			</div>
+		</section>
+	</article>
 		
-		<?php		
-			array_walk($view_model->Pages, "chui_write_views", $view_model);
-		?>
-    </app>
+	<?php		
+		array_walk($view_model->Pages, "chui_write_views", $view_model);
+	?>
+        
 	<?php
 		wp_footer();
 	?>
@@ -189,28 +182,29 @@
 				}, 400);
 			});			
 			
-			$('#Blog tableview').on($.userAction, 'tablecell', function (item) {
-				$('#blog-detail').attr('ui-uri', '/Blog' + item.attr('data-blog-path'));
+			$('#Blog section ul li').on('tap', function () {
+                
+				$('#blog-detail').attr('ui-uri', '/Blog' + $(this).attr('data-blog-path'));
 				
 				var href = location.href.split('#')[0];
-				var path = href + item.attr('data-blog-path') + 'json';								
+				var path = href + $(this).attr('data-blog-path') + 'json';								
 				var content = $('#blog-detail-subview');
 				
-				$('#blog-detail h1').empty();
+				$('#blog-detail-nav h1').empty();
 				$('#blog-detail-contents').empty();
-				$('#blog-detail-contents').UIActivityIndicator({modal:true, modalMessage:'Loading...'});
+				$('#blog-detail-contents').UIBusy();
 				
-				$.xhr({
+				$.ajax({
 				   url : path,
 				   async: true,
 				   success : function(data) {
 						var blogPost = JSON.parse(data);						
 					
-						$('#blog-detail h1').html(blogPost.post_title);
+						$('#blog-detail-nav h1').html(blogPost.post_title);
 						$('#blog-detail-contents').html(blogPost.post_content);
 				   },
 				   error: function(data) {
-						$('#blog-detail h1').html("Error");
+						$('#blog-detail-nav h1').html("Error");
 						$('#blog-detail-contents').html("Unable to retrieve blog post at this time");
 
 						if (data.status === -1100) {
@@ -221,7 +215,7 @@
 			});			
 			
 			<?php							
-				array_walk($view_model->Pages, "chui_write_route_functions", $view_model);				
+				/*array_walk($view_model->Pages, "chui_write_route_functions", $view_model);				
 				
 				function chui_write_route_functions($value, $key, $view_model) {
 					$pageId = str_replace(" ", "", $value->post_title);
@@ -235,26 +229,26 @@
 							console.log('".$pageId." routed to');
 							$.UINavigateToView('#".$viewId."');
 						};\r\n";
-				}
+				}*/
 				
 			?>
 			
 			var routes = {
 			
 			<?php			
-				array_walk($view_model->Pages, "chui_write_routes");
+				/*array_walk($view_model->Pages, "chui_write_routes");
 			
 				function chui_write_routes($value) {
 					$pageId = str_replace(" ", "", $value->post_title);					
 					
 					echo "'/".$pageId."' : navigate".$pageId . ",\r\n";					
-				}
+				}*/
 			?>
 
 			};
 			
-			var router = Router(routes);
-			router.init();
+			//var router = Router(routes);
+			//router.init();
 					
 	</script>
 </body>

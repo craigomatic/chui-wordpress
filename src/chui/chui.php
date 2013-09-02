@@ -34,7 +34,7 @@
         return $device;
     }
 
-    if (!is_feed() && !is_admin()){
+    if (!is_admin()){
 	    $device = evaluate_device();
 	}    
     
@@ -59,9 +59,9 @@
         $pageId = str_replace(" ", "", $page->post_title);
 		
 		if($page->ID != $view_model->FrontPageId) {
-			echo "<tablecell href='#".$pageId."'>
-					<celltitle>".$page->post_title."</celltitle>
-				</tablecell>";
+			echo "<li data-goto='".$pageId."'>
+					<h3>".$page->post_title."</h3>
+				</li>";
 		}
 	}
 							
@@ -73,60 +73,51 @@
 		//echo '<pre>Children: ' . print_r( $children, true ) . '</pre>';
 		$page_for_posts = intval(get_option( 'page_for_posts' ));
 		
-		$nav_status = 'upcoming';
+		$nav_status = 'next';
 		
 		if(strtolower($page->ID) == strtolower($view_model->RequestedPage))	{
 			$nav_status = 'current';
 		}
 				
 		if($page->ID == $page_for_posts) {
-			echo "<view id='".$pageId."' ui-navigation-status='".$nav_status."' ui-background-style='vertical-striped'>
-				<navbar>
-					<uibutton ui-implements='back' ui-bar-align='left'>
-						<label>Back</label>
-					</uibutton>
+			echo "<nav class='".$nav_status."'>
+					<a class='button back'>Menu</a>
 					<h1>".$page->post_title."</h1>					
-				</navbar>
-				<subview ui-associations='withNavBar'>";
+				</nav>
+                <article id='".$pageId."' class='".$nav_status."'>
+                    <section>				
+				        <ul class='list'>";
 						
 					apply_filters('the_content', $page->post_content);
-					
-					echo "<scrollpanel>
-							<tableview ui-tablecell-order='stacked' ui-kind='grouped'>";
-					
+										
 					foreach($view_model->BlogPosts as $key => $value)
 					{							
 						$slugPath = str_replace(site_url(), '', $value->Slug);
 						
-						echo "<tablecell ui-implements='detail-disclosure' href='#blog-detail' class='blog-post-menu' data-blog-path='".$slugPath."'>
-								<celltitle class='productTitle'>".$value->Title."</celltitle>
-								<cellsubtitle>".$value->Excerpt."</cellsubtitle>
-							</tablecell>";
+						echo "<li data-goto='blog-detail' class='blog-post-menu' data-blog-path='".$slugPath."'>
+								<h3>".$value->Title."</h3>
+								<aside>".$value->Excerpt."</aside>
+							</li>";
 					}						
 					
-					echo "</tableview>
-						</scrollpanel>";
-			echo "</subview>
-			</view>";
+			    echo "</ul>
+                    </section>
+			    </article>";
 		}
 		else {
-			echo "<view id='".$pageId."' ui-navigation-status='".$nav_status."' ui-background-style='vertical-striped'>
-				<navbar>
-					<uibutton ui-implements='back' ui-bar-align='left'>
-						<label>Back</label>
-					</uibutton>
+			echo "<nav class='".$nav_status."'>
+					<a class='button back'>Back</a>
 					<h1>".$page->post_title."</h1>					
-				</navbar>
-				<subview ui-associations='withNavBar'>
-					<scrollpanel>
-						<div ui-kind='grouped'>
-							"
-						.apply_filters('the_content', $page->post_content).
-							"
-						</div>
-					</scrollpanel>
-				</subview>
-			</view>";
+				</nav>
+                <article id='".$pageId."' class='".$nav_status."'>
+				    <section>
+						    <div>
+							    "
+						    .apply_filters('the_content', $page->post_content).
+							    "
+						    </div>
+				    </section>
+			    </article>";
 		}
 	}
 	
